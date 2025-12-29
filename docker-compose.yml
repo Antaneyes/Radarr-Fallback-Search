@@ -1,0 +1,23 @@
+services:
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr-test
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
+    volumes:
+      - ./_output/net8.0/Radarr.Core.dll:/app/radarr/bin/Radarr.Core.dll:ro
+      - ./_output/net8.0/Radarr.Api.V3.dll:/app/radarr/bin/Radarr.Api.V3.dll:ro
+      - ./_output/net8.0/Radarr.Common.dll:/app/radarr/bin/Radarr.Common.dll:ro
+      - ./_output/net8.0/Radarr.Http.dll:/app/radarr/bin/Radarr.Http.dll:ro
+      - ./_output/net8.0/Radarr.Host.dll:/app/radarr/bin/Radarr.Host.dll:ro
+      - ./_output/net8.0/Radarr.SignalR.dll:/app/radarr/bin/Radarr.SignalR.dll:ro
+      - ./_output/net8.0/Radarr.Mono.dll:/app/radarr/bin/Radarr.Mono.dll:ro
+      - ./_output/net8.0/UI:/app/radarr/UI:ro
+      - C:/docker/radarr-test/config:/config
+      - G:/Torrent:/downloads
+      - G:/Plex/Peliculas:/movies
+    ports:
+      - 7978:7878
+    restart: unless-stopped

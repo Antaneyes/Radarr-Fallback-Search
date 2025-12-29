@@ -12,6 +12,7 @@ namespace Radarr.Api.V3.Indexers
         public DownloadProtocol Protocol { get; set; }
         public int Priority { get; set; }
         public int DownloadClientId { get; set; }
+        public bool IsFallback { get; set; }
     }
 
     public class IndexerResourceMapper : ProviderResourceMapper<IndexerResource, IndexerDefinition>
@@ -33,6 +34,7 @@ namespace Radarr.Api.V3.Indexers
             resource.Protocol = definition.Protocol;
             resource.Priority = definition.Priority;
             resource.DownloadClientId = definition.DownloadClientId;
+            resource.IsFallback = definition.IsFallback;
 
             return resource;
         }
@@ -51,6 +53,7 @@ namespace Radarr.Api.V3.Indexers
             definition.EnableInteractiveSearch = resource.EnableInteractiveSearch;
             definition.Priority = resource.Priority;
             definition.DownloadClientId = resource.DownloadClientId;
+            definition.IsFallback = resource.IsFallback;
 
             return definition;
         }

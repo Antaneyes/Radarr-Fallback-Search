@@ -126,21 +126,21 @@ namespace Radarr.Api.V3.Indexers
 
         [HttpGet]
         [Produces("application/json")]
-        public async Task<List<ReleaseResource>> GetReleases(int? movieId)
+        public async Task<List<ReleaseResource>> GetReleases(int? movieId, bool includeFallback = false)
         {
             if (movieId.HasValue)
             {
-                return await GetMovieReleases(movieId.Value);
+                return await GetMovieReleases(movieId.Value, includeFallback);
             }
 
             return await GetRss();
         }
 
-        private async Task<List<ReleaseResource>> GetMovieReleases(int movieId)
+        private async Task<List<ReleaseResource>> GetMovieReleases(int movieId, bool includeFallback = false)
         {
             try
             {
-                var decisions = await _releaseSearchService.MovieSearch(movieId, true, true);
+                var decisions = await _releaseSearchService.MovieSearch(movieId, true, true, includeFallback);
                 var prioritizedDecisions = _prioritizeDownloadDecision.PrioritizeDecisionsForMovies(decisions);
 
                 return MapDecisions(prioritizedDecisions);

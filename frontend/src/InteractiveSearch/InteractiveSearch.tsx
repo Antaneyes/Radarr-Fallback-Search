@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ClientSideCollectionAppState from 'App/State/ClientSideCollectionAppState';
 import ReleasesAppState from 'App/State/ReleasesAppState';
 import Alert from 'Components/Alert';
+import Button from 'Components/Link/Button';
 import Icon from 'Components/Icon';
 import LoadingIndicator from 'Components/Loading/LoadingIndicator';
 import FilterMenu from 'Components/Menu/FilterMenu';
@@ -188,6 +189,13 @@ function InteractiveSearch({ searchPayload }: InteractiveSearchProps) {
   return (
     <div>
       <div className={styles.filterMenuContainer}>
+        <Button
+          className={styles.fallbackButton}
+          onPress={() => dispatch(fetchReleases({ ...searchPayload, includeFallback: true }))}
+          title="Buscar en indexadores de fallback (más lento)"
+        >
+          <Icon name={icons.SEARCH} /> Buscar en Fallback
+        </Button>
         <FilterMenu
           alignMenu={align.RIGHT}
           selectedFilterKey={selectedFilterKey}

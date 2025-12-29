@@ -1,0 +1,11 @@
+C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\IndexerSearch\ReleaseSearchService.cs(108,68): error CS1061: "ProviderDefinition" no contiene una definici??n para "IsFallback" ni un m??todo de extensi??n accesible "IsFallback" que acepte un primer argumento del tipo "ProviderDefinition" (??falta alguna directiva using o una referencia de ensamblado?) [C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\Radarr.Core.csproj::TargetFramework=net8.0]
+C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\IndexerSearch\ReleaseSearchService.cs(109,69): error CS1061: "ProviderDefinition" no contiene una definici??n para "IsFallback" ni un m??todo de extensi??n accesible "IsFallback" que acepte un primer argumento del tipo "ProviderDefinition" (??falta alguna directiva using o una referencia de ensamblado?) [C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\Radarr.Core.csproj::TargetFramework=net8.0]
+C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\IndexerSearch\ReleaseSearchService.cs(111,106): error CS1503: Argumento 4: no se puede convertir de 'grupo de m??todos' a 'object' [C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\Radarr.Core.csproj::TargetFramework=net8.0]
+C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\IndexerSearch\ReleaseSearchService.cs(121,76): error CS1503: Argumento 3: no se puede convertir de 'grupo de m??todos' a 'object' [C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\Radarr.Core.csproj::TargetFramework=net8.0]
+C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\IndexerSearch\ReleaseSearchService.cs(130,96): error CS1503: Argumento 3: no se puede convertir de 'grupo de m??todos' a 'object' [C:\Users\joshu\Documents\proyectos\radarr-test\Radarr\src\NzbDrone.Core\Radarr.Core.csproj::TargetFramework=net8.0]
+
+ERROR al compilar.
+    0 Advertencia(s)
+    5 Errores
+
+Tiempo transcurrido 00:00:09.87

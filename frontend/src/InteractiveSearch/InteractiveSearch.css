@@ -4,6 +4,10 @@
   margin-bottom: 10px;
 }
 
+.fallbackButton {
+  margin-right: 10px;
+}
+
 .alert {
   composes: alert from '~Components/Alert.css';
 

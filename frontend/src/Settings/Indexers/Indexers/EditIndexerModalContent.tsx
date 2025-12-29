@@ -70,6 +70,7 @@ function EditIndexerModalContent({
     tags,
     fields,
     priority,
+    isFallback,
     protocol,
     downloadClientId,
   } = item;
@@ -151,6 +152,18 @@ function EditIndexerModalContent({
                 }
                 isDisabled={!supportsRss.value}
                 {...enableRss}
+                onChange={handleInputChange}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <FormLabel>Fallback</FormLabel>
+
+              <FormInputGroup
+                type={inputTypes.CHECK}
+                name="isFallback"
+                helpText="Si está activado, este indexador solo se consultará si los demás no devuelven resultados válidos."
+                {...isFallback}
                 onChange={handleInputChange}
               />
             </FormGroup>

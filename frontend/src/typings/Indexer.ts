@@ -9,6 +9,7 @@ interface Indexer extends Provider {
   supportsSearch: boolean;
   protocol: DownloadProtocol;
   priority: number;
+  isFallback: boolean;
   downloadClientId: number;
   tags: number[];
 }

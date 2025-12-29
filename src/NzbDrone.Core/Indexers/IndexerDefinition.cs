@@ -29,6 +29,7 @@ namespace NzbDrone.Core.Indexers
         public bool EnableInteractiveSearch { get; set; }
         public int DownloadClientId { get; set; }
         public int Priority { get; set; }
+        public bool IsFallback { get; set; }
 
         [MemberwiseEqualityIgnore]
         public override bool Enable => EnableRss || EnableAutomaticSearch || EnableInteractiveSearch;

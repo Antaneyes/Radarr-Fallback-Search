@@ -17,8 +17,8 @@ namespace NzbDrone.Core.IndexerSearch
 {
     public interface ISearchForReleases
     {
-        Task<List<DownloadDecision>> MovieSearch(int movieId, bool userInvokedSearch, bool interactiveSearch);
-        Task<List<DownloadDecision>> MovieSearch(Movie movie, bool userInvokedSearch, bool interactiveSearch);
+        Task<List<DownloadDecision>> MovieSearch(int movieId, bool userInvokedSearch, bool interactiveSearch, bool includeFallback = false);
+        Task<List<DownloadDecision>> MovieSearch(Movie movie, bool userInvokedSearch, bool interactiveSearch, bool includeFallback = false);
     }
 
     public class ReleaseSearchService : ISearchForReleases
@@ -45,19 +45,20 @@ namespace NzbDrone.Core.IndexerSearch
             _logger = logger;
         }
 
-        public async Task<List<DownloadDecision>> MovieSearch(int movieId, bool userInvokedSearch, bool interactiveSearch)
+        public async Task<List<DownloadDecision>> MovieSearch(int movieId, bool userInvokedSearch, bool interactiveSearch, bool includeFallback = false)
         {
             var movie = _movieService.GetMovie(movieId);
             movie.MovieMetadata.Value.Translations = _movieTranslationService.GetAllTranslationsForMovieMetadata(movie.MovieMetadataId);
 
-            return await MovieSearch(movie, userInvokedSearch, interactiveSearch);
+            return await MovieSearch(movie, userInvokedSearch, interactiveSearch, includeFallback);
         }
 
-        public async Task<List<DownloadDecision>> MovieSearch(Movie movie, bool userInvokedSearch, bool interactiveSearch)
+        public async Task<List<DownloadDecision>> MovieSearch(Movie movie, bool userInvokedSearch, bool interactiveSearch, bool includeFallback = false)
         {
             var downloadDecisions = new List<DownloadDecision>();
 
             var searchSpec = Get<MovieSearchCriteria>(movie, userInvokedSearch, interactiveSearch);
+            searchSpec.IncludeFallback = includeFallback;
 
             var decisions = await Dispatch(indexer => indexer.Fetch(searchSpec), searchSpec);
             downloadDecisions.AddRange(decisions);
@@ -104,13 +105,27 @@ namespace NzbDrone.Core.IndexerSearch
             // Filter indexers to untagged indexers and indexers with intersecting tags
             indexers = indexers.Where(i => i.Definition.Tags.Empty() || i.Definition.Tags.Intersect(criteriaBase.Movie.Tags).Any()).ToList();
 
-            _logger.ProgressInfo("Searching indexers for {0}. {1} active indexers", criteriaBase, indexers.Count);
+            var normalIndexers = indexers.Where(i => !((IndexerDefinition)i.Definition).IsFallback).ToList();
+            var fallbackIndexers = indexers.Where(i => ((IndexerDefinition)i.Definition).IsFallback).ToList();
 
-            var tasks = indexers.Select(indexer => DispatchIndexer(searchAction, indexer, criteriaBase));
+            _logger.ProgressInfo("Searching indexers for {0}. {1} active normal indexers", criteriaBase, normalIndexers.Count);
 
+            var tasks = normalIndexers.Select(indexer => DispatchIndexer(searchAction, indexer, criteriaBase));
             var batch = await Task.WhenAll(tasks);
-
             var reports = batch.SelectMany(x => x).ToList();
+
+            var resultsFound = _makeDownloadDecision.GetSearchDecision(reports, criteriaBase).ToList();
+
+            if (fallbackIndexers.Any() && ((!criteriaBase.InteractiveSearch && !resultsFound.Any(d => d.Approved)) || criteriaBase.IncludeFallback))
+            {
+                _logger.ProgressInfo("Searching in {0} fallback indexers", fallbackIndexers.Count);
+                var fallbackTasks = fallbackIndexers.Select(indexer => DispatchIndexer(searchAction, indexer, criteriaBase));
+                var fallbackBatch = await Task.WhenAll(fallbackTasks);
+                var fallbackReports = fallbackBatch.SelectMany(x => x).ToList();
+                reports.AddRange(fallbackReports);
+
+                resultsFound = _makeDownloadDecision.GetSearchDecision(reports, criteriaBase).ToList();
+            }
 
             _logger.ProgressDebug("Total of {0} reports were found for {1} from {2} indexers", reports.Count, criteriaBase, indexers.Count);
 
@@ -124,7 +139,7 @@ namespace NzbDrone.Core.IndexerSearch
                 _movieService.UpdateLastSearchTime(criteriaBase.Movie);
             }
 
-            return _makeDownloadDecision.GetSearchDecision(reports, criteriaBase).ToList();
+            return resultsFound;
         }
 
         private async Task<IList<ReleaseInfo>> DispatchIndexer(Func<IIndexer, Task<IList<ReleaseInfo>>> searchAction, IIndexer indexer, SearchCriteriaBase criteriaBase)
