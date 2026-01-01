@@ -23,7 +23,7 @@ Esta versión incluye herramientas para un despliegue rápido sobre la imagen of
    ```bash
    docker-compose up -d
    ```
-3. **Acceso:** La interfaz estará disponible por defecto en `http://localhost:7978`.
+3. **Acceso:** La interfaz estará disponible por defecto en `http://localhost:7878`.
 
 ## 📂 Estructura del Proyecto
 
