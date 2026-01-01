@@ -19,5 +19,5 @@ services:
       - G:/Torrent:/downloads
       - G:/Plex/Peliculas:/movies
     ports:
-      - 7978:7878
+      - 7878:7878
     restart: unless-stopped
