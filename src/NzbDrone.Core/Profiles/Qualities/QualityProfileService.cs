@@ -121,93 +121,130 @@ namespace NzbDrone.Core.Profiles.Qualities
 
         public void Handle(ApplicationStartedEvent message)
         {
-            if (All().Any())
+            if (!All().Any())
             {
-                return;
+                _logger.Info("Setting up default quality profiles");
+
+                AddDefaultProfile("Any",
+                    Quality.Bluray480p,
+                    Quality.WORKPRINT,
+                    Quality.CAM,
+                    Quality.TELESYNC,
+                    Quality.TELECINE,
+                    Quality.DVDSCR,
+                    Quality.REGIONAL,
+                    Quality.SDTV,
+                    Quality.DVD,
+                    Quality.DVDR,
+                    Quality.HDTV720p,
+                    Quality.HDTV1080p,
+                    Quality.HDTV2160p,
+                    Quality.WEBDL480p,
+                    Quality.WEBRip480p,
+                    Quality.WEBDL720p,
+                    Quality.WEBRip720p,
+                    Quality.WEBDL1080p,
+                    Quality.WEBRip1080p,
+                    Quality.WEBDL2160p,
+                    Quality.WEBRip2160p,
+                    Quality.Bluray480p,
+                    Quality.Bluray576p,
+                    Quality.Bluray720p,
+                    Quality.Bluray1080p,
+                    Quality.Bluray2160p,
+                    Quality.Remux1080p,
+                    Quality.Remux2160p,
+                    Quality.BRDISK);
+
+                AddDefaultProfile("SD",
+                    Quality.Bluray480p,
+                    Quality.WORKPRINT,
+                    Quality.CAM,
+                    Quality.TELESYNC,
+                    Quality.TELECINE,
+                    Quality.DVDSCR,
+                    Quality.REGIONAL,
+                    Quality.SDTV,
+                    Quality.DVD,
+                    Quality.WEBDL480p,
+                    Quality.WEBRip480p,
+                    Quality.Bluray480p,
+                    Quality.Bluray576p);
+
+                AddDefaultProfile("HD-720p",
+                    Quality.Bluray720p,
+                    Quality.HDTV720p,
+                    Quality.WEBDL720p,
+                    Quality.WEBRip720p,
+                    Quality.Bluray720p);
+
+                AddDefaultProfile("HD-1080p",
+                    Quality.Bluray1080p,
+                    Quality.HDTV1080p,
+                    Quality.WEBDL1080p,
+                    Quality.WEBRip1080p,
+                    Quality.Bluray1080p,
+                    Quality.Remux1080p);
+
+                AddDefaultProfile("Ultra-HD",
+                    Quality.Remux2160p,
+                    Quality.HDTV2160p,
+                    Quality.WEBDL2160p,
+                    Quality.WEBRip2160p,
+                    Quality.Bluray2160p,
+                    Quality.Remux2160p);
+
+                AddDefaultProfile("HD - 720p/1080p",
+                    Quality.Bluray720p,
+                    Quality.HDTV720p,
+                    Quality.HDTV1080p,
+                    Quality.WEBDL720p,
+                    Quality.WEBRip720p,
+                    Quality.WEBDL1080p,
+                    Quality.WEBRip1080p,
+                    Quality.Bluray720p,
+                    Quality.Bluray1080p,
+                    Quality.Remux1080p);
             }
+            else
+            {
+                SyncMissingQualities();
+            }
+        }
 
-            _logger.Info("Setting up default quality profiles");
+        private void SyncMissingQualities()
+        {
+            var profiles = All();
+            var allQualityIds = Quality.All.Where(q => q.Id > 0).Select(q => q.Id).ToList();
 
-            AddDefaultProfile("Any",
-                Quality.Bluray480p,
-                Quality.WORKPRINT,
-                Quality.CAM,
-                Quality.TELESYNC,
-                Quality.TELECINE,
-                Quality.DVDSCR,
-                Quality.REGIONAL,
-                Quality.SDTV,
-                Quality.DVD,
-                Quality.DVDR,
-                Quality.HDTV720p,
-                Quality.HDTV1080p,
-                Quality.HDTV2160p,
-                Quality.WEBDL480p,
-                Quality.WEBRip480p,
-                Quality.WEBDL720p,
-                Quality.WEBRip720p,
-                Quality.WEBDL1080p,
-                Quality.WEBRip1080p,
-                Quality.WEBDL2160p,
-                Quality.WEBRip2160p,
-                Quality.Bluray480p,
-                Quality.Bluray576p,
-                Quality.Bluray720p,
-                Quality.Bluray1080p,
-                Quality.Bluray2160p,
-                Quality.Remux1080p,
-                Quality.Remux2160p,
-                Quality.BRDISK);
+            foreach (var profile in profiles)
+            {
+                var profileQualities = profile.Items.SelectMany(i => i.GetQualities()).Select(q => q.Id).ToHashSet();
+                var missingIds = allQualityIds.Where(id => !profileQualities.Contains(id)).ToList();
 
-            AddDefaultProfile("SD",
-                Quality.Bluray480p,
-                Quality.WORKPRINT,
-                Quality.CAM,
-                Quality.TELESYNC,
-                Quality.TELECINE,
-                Quality.DVDSCR,
-                Quality.REGIONAL,
-                Quality.SDTV,
-                Quality.DVD,
-                Quality.WEBDL480p,
-                Quality.WEBRip480p,
-                Quality.Bluray480p,
-                Quality.Bluray576p);
+                if (missingIds.Any())
+                {
+                    _logger.Info("Syncing missing qualities for profile {0}", profile.Name);
 
-            AddDefaultProfile("HD-720p",
-                Quality.Bluray720p,
-                Quality.HDTV720p,
-                Quality.WEBDL720p,
-                Quality.WEBRip720p,
-                Quality.Bluray720p);
+                    // Rebuild the items list using GetDefaultProfile but preserve allowed status
+                    var allowedQualityIds = profile.Items.Where(i => i.Allowed).SelectMany(i => i.GetQualities()).Select(q => q.Id).ToHashSet();
+                    
+                    // Add existing sub-items allowed status if a group was allowed
+                    foreach (var item in profile.Items.Where(i => i.Allowed && i.Items.Any()))
+                    {
+                        foreach (var subItem in item.Items)
+                        {
+                            allowedQualityIds.Add(subItem.Quality.Id);
+                        }
+                    }
 
-            AddDefaultProfile("HD-1080p",
-                Quality.Bluray1080p,
-                Quality.HDTV1080p,
-                Quality.WEBDL1080p,
-                Quality.WEBRip1080p,
-                Quality.Bluray1080p,
-                Quality.Remux1080p);
+                    var allowedQualities = Quality.All.Where(q => allowedQualityIds.Contains(q.Id)).ToArray();
+                    var tempProfile = GetDefaultProfile(profile.Name, null, allowedQualities);
 
-            AddDefaultProfile("Ultra-HD",
-                Quality.Remux2160p,
-                Quality.HDTV2160p,
-                Quality.WEBDL2160p,
-                Quality.WEBRip2160p,
-                Quality.Bluray2160p,
-                Quality.Remux2160p);
-
-            AddDefaultProfile("HD - 720p/1080p",
-                Quality.Bluray720p,
-                Quality.HDTV720p,
-                Quality.HDTV1080p,
-                Quality.WEBDL720p,
-                Quality.WEBRip720p,
-                Quality.WEBDL1080p,
-                Quality.WEBRip1080p,
-                Quality.Bluray720p,
-                Quality.Bluray1080p,
-                Quality.Remux1080p);
+                    profile.Items = tempProfile.Items;
+                    Update(profile);
+                }
+            }
         }
 
         public QualityProfile GetDefaultProfile(string name, Quality cutoff = null, params Quality[] allowed)

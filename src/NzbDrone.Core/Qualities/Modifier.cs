@@ -7,6 +7,7 @@ namespace NzbDrone.Core.Qualities
         SCREENER,
         RAWHD,
         BRDISK,
-        REMUX
+        REMUX,
+        MICROHD
     }
 }

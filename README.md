@@ -1,6 +1,6 @@
-# Radarr - Fallback Indexer Edition
+# Radarr Fallback Search
 
-Este es un fork personalizado de **Radarr** que introduce una funcionalidad avanzada de **Indexadores de Fallback**. Su objetivo es optimizar las búsquedas y reducir la carga en indexadores lentos o limitados.
+Bienvenido al repositorio oficial de **Radarr Fallback Search**. Este proyecto es una evolución personalizada de Radarr que introduce capacidades avanzadas de búsqueda con indexadores de respaldo (fallback).
 
 ## 🚀 Funcionalidades Principales
 
@@ -23,7 +23,7 @@ Esta versión incluye herramientas para un despliegue rápido sobre la imagen of
    ```bash
    docker-compose up -d
    ```
-3. **Acceso:** La interfaz estará disponible por defecto en `http://localhost:7978`.
+3. **Acceso:** La interfaz estará disponible por defecto en `http://localhost:7878`.
 
 ## 📂 Estructura del Proyecto
 
@@ -33,4 +33,4 @@ Los cambios más importantes se encuentran en:
 - `frontend/src/InteractiveSearch/InteractiveSearch.tsx`: Nueva UI para búsquedas manuales en fallback.
 
 ---
-*Basado en el código original de [Radarr](https://github.com/Radarr/Radarr).*
+*Este es el repositorio principal del proyecto **Radarr Fallback Search**. Basado en el código original de Radarr.*

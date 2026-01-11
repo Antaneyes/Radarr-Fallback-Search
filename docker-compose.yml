@@ -1,7 +1,7 @@
 services:
   radarr:
     image: linuxserver/radarr:latest
-    container_name: radarr-test
+    container_name: radarr
     environment:
       - PUID=1000
       - PGID=1000
@@ -20,4 +20,4 @@ services:
       - G:/Plex/Peliculas:/movies
     ports:
       - 7878:7878
-    restart: unless-stopped
+    restart: always

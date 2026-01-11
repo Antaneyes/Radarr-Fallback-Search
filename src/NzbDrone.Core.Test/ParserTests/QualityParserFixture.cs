@@ -95,6 +95,18 @@ namespace NzbDrone.Core.Test.ParserTests
             ParseAndVerifyQuality(title, QualitySource.DVD, proper, Resolution.R480p, Modifier.REMUX);
         }
 
+        [TestCase("Movie.Title.1080p.Bluray.mHD.x264", QualitySource.BLURAY, Resolution.R1080p)]
+        [TestCase("Movie.Title.720p.WEBDL.muhd.x264", QualitySource.WEBDL, Resolution.R720p)]
+        [TestCase("Movie.Title.m1080.HDTV.x264", QualitySource.TV, Resolution.R1080p)]
+        [TestCase("Movie.Title.1080p.Bluray.micro-HD.x264", QualitySource.BLURAY, Resolution.R1080p)]
+        [TestCase("Movie.Title.1080p.Bluray.microHD.x264", QualitySource.BLURAY, Resolution.R1080p)]
+        [TestCase("Movie.Title.2160p.WEBRip.m4k.x265", QualitySource.WEBRIP, Resolution.R2160p)]
+        [TestCase("Movie.Title.720p.HDTV.m720.x264", QualitySource.TV, Resolution.R720p)]
+        public void should_parse_mhd_quality(string title, QualitySource source, Resolution resolution)
+        {
+            ParseAndVerifyQuality(title, source, false, resolution, Modifier.MICROHD);
+        }
+
         [TestCase("Movie.Name.S01E10.The.Leviathan.480p.WEB-DL.x264-mSD", false)]
         [TestCase("Movie.Name.S04E10.Glee.Actually.480p.WEB-DL.x264-mSD", false)]
         [TestCase("Movie.Name.S06E11.The.Santa.Simulation.480p.WEB-DL.x264-mSD", false)]
