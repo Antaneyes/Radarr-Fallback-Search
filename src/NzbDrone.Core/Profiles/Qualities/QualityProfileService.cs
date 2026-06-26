@@ -228,7 +228,7 @@ namespace NzbDrone.Core.Profiles.Qualities
 
                     // Rebuild the items list using GetDefaultProfile but preserve allowed status
                     var allowedQualityIds = profile.Items.Where(i => i.Allowed).SelectMany(i => i.GetQualities()).Select(q => q.Id).ToHashSet();
-                    
+
                     // Add existing sub-items allowed status if a group was allowed
                     foreach (var item in profile.Items.Where(i => i.Allowed && i.Items.Any()))
                     {
