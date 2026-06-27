@@ -25,12 +25,16 @@ Esta versión incluye herramientas para un despliegue rápido sobre la imagen of
    ```
 3. **Acceso:** La interfaz estará disponible por defecto en `http://localhost:7878`.
 
+> [!IMPORTANT]
+> La interfaz compilada debe montarse en `/app/radarr/bin/UI`. Radarr sirve los assets desde el content root `/app/radarr/bin`; si se monta en `/app/radarr/UI`, el backend puede estar parcheado pero la UI seguirá mostrando la versión original de la imagen.
+
 ## 📂 Estructura del Proyecto
 
 Los cambios más importantes se encuentran en:
 - `NzbDrone.Core/IndexerSearch/ReleaseSearchService.cs`: Lógica de despacho secuencial.
 - `Radarr.Api.V3/Indexers/ReleaseController.cs`: Soporte para el parámetro `includeFallback`.
 - `frontend/src/InteractiveSearch/InteractiveSearch.tsx`: Nueva UI para búsquedas manuales en fallback.
+- `docker-compose.yml`: Montaje de DLLs parcheadas y UI compilada en la ruta servida por Radarr.
 
 ---
 *Este es el repositorio principal del proyecto **Radarr Fallback Search**. Basado en el código original de Radarr.*
