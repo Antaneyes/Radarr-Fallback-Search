@@ -14,7 +14,7 @@ services:
       - ./_output/net8.0/Radarr.Host.dll:/app/radarr/bin/Radarr.Host.dll:ro
       - ./_output/net8.0/Radarr.SignalR.dll:/app/radarr/bin/Radarr.SignalR.dll:ro
       - ./_output/net8.0/Radarr.Mono.dll:/app/radarr/bin/Radarr.Mono.dll:ro
-      - ./_output/net8.0/UI:/app/radarr/UI:ro
+      - ./_output/net8.0/UI:/app/radarr/bin/UI:ro
       - C:/docker/radarr-test/config:/config
       - G:/Torrent:/downloads
       - G:/Plex/Peliculas:/movies
