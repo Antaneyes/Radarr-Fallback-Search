@@ -1,7 +1,10 @@
 using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
+using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Languages;
 using NzbDrone.Core.Movies;
+using NzbDrone.Core.Movies.Translations;
 using NzbDrone.Core.Organizer;
 using NzbDrone.Core.Test.Framework;
 
@@ -30,6 +33,38 @@ namespace NzbDrone.Core.Test.OrganizerTests
             _namingConfig.MovieFolderFormat = format;
 
             var movie = new Movie { Title = movieTitle, Year = year };
+
+            Subject.GetMovieFolder(movie).Should().Be(expected);
+        }
+
+        [TestCase("{Movie Title} ({Release Year})", "Vaiana (2026)")]
+        [TestCase("{Movie TitleThe} ({Release Year})", "Vaiana (2026)")]
+        [TestCase("{Movie CleanTitleThe} ({Release Year})", "Vaiana (2026)")]
+        public void should_use_movie_info_language_for_movie_folder_title_tokens(string format, string expected)
+        {
+            _namingConfig.MovieFolderFormat = format;
+
+            Mocker.GetMock<IConfigService>()
+                  .SetupGet(c => c.MovieInfoLanguage)
+                  .Returns((int)Language.Spanish);
+
+            var movie = new Movie
+            {
+                MovieMetadata = new MovieMetadata
+                {
+                    Title = "Moana",
+                    OriginalTitle = "Moana",
+                    Year = 2026,
+                    Translations =
+                    {
+                        new MovieTranslation
+                        {
+                            Language = Language.Spanish,
+                            Title = "Vaiana"
+                        }
+                    }
+                }
+            };
 
             Subject.GetMovieFolder(movie).Should().Be(expected);
         }

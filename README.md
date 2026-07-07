@@ -14,6 +14,12 @@ En la pantalla de búsqueda interactiva de películas:
 - Se añade un nuevo botón: **"Buscar en Fallback"**.
 - Esto te permite realizar una búsqueda normal rápida y, solo si no encuentras lo que buscas, disparar la búsqueda en los indexadores de fallback con un solo clic.
 
+### 3. Carpetas nuevas con títulos localizados
+Al crear una película nueva, los tokens de carpeta basados en `{Movie Title}` usan el idioma configurado en **Settings > UI > Movie Info Language**. Esto permite que formatos como `{Movie Title} ({Release Year})` creen carpetas en español cuando Radarr ya tiene esa traducción disponible.
+
+> [!NOTE]
+> Este cambio solo afecta a carpetas nuevas. No renombra carpetas ya existentes ni cambia los nombres de archivo de las películas.
+
 ## 🛠️ Instalación y Despliegue (Docker)
 
 Esta versión incluye herramientas para un despliegue rápido sobre la imagen oficial de Radarr mediante el montaje selectivo de binarios:
@@ -33,6 +39,7 @@ Esta versión incluye herramientas para un despliegue rápido sobre la imagen of
 Los cambios más importantes se encuentran en:
 - `NzbDrone.Core/IndexerSearch/ReleaseSearchService.cs`: Lógica de despacho secuencial.
 - `Radarr.Api.V3/Indexers/ReleaseController.cs`: Soporte para el parámetro `includeFallback`.
+- `NzbDrone.Core/Organizer/FileNameBuilder.cs`: Uso del idioma configurado para los títulos de carpetas nuevas.
 - `frontend/src/InteractiveSearch/InteractiveSearch.tsx`: Nueva UI para búsquedas manuales en fallback.
 - `docker-compose.yml`: Montaje de DLLs parcheadas y UI compilada en la ruta servida por Radarr.
 

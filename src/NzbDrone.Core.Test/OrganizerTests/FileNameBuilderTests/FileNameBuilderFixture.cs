@@ -93,6 +93,21 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
         }
 
         [Test]
+        public void should_not_use_configured_movie_info_language_for_file_name_title_tokens()
+        {
+            _namingConfig.StandardMovieFormat = "{Movie Title}";
+
+            Mocker.GetMock<NzbDrone.Core.Configuration.IConfigService>()
+                  .SetupGet(c => c.MovieInfoLanguage)
+                  .Returns((int)Language.German);
+
+            _movie.MovieMetadata.Value.Translations = _movieTranslations;
+
+            Subject.BuildFileName(_movie, _movieFile)
+                   .Should().Be("South Park");
+        }
+
+        [Test]
         public void should_replace_Movie_underscore_Title()
         {
             _namingConfig.StandardMovieFormat = "{Movie_Title}";

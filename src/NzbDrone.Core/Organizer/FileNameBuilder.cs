@@ -9,7 +9,9 @@ using Diacritical;
 using NLog;
 using NzbDrone.Common.EnsureThat;
 using NzbDrone.Common.Extensions;
+using NzbDrone.Core.Configuration;
 using NzbDrone.Core.CustomFormats;
+using NzbDrone.Core.Languages;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.MediaFiles.MediaInfo;
 using NzbDrone.Core.Movies;
@@ -35,6 +37,7 @@ namespace NzbDrone.Core.Organizer
         private readonly IQualityDefinitionService _qualityDefinitionService;
         private readonly IUpdateMediaInfo _mediaInfoUpdater;
         private readonly IMovieTranslationService _movieTranslationService;
+        private readonly IConfigService _configService;
         private readonly ICustomFormatCalculationService _formatCalculator;
         private readonly Logger _logger;
 
@@ -91,6 +94,7 @@ namespace NzbDrone.Core.Organizer
                                IQualityDefinitionService qualityDefinitionService,
                                IUpdateMediaInfo mediaInfoUpdater,
                                IMovieTranslationService movieTranslationService,
+                               IConfigService configService,
                                ICustomFormatCalculationService formatCalculator,
                                Logger logger)
         {
@@ -98,6 +102,7 @@ namespace NzbDrone.Core.Organizer
             _qualityDefinitionService = qualityDefinitionService;
             _mediaInfoUpdater = mediaInfoUpdater;
             _movieTranslationService = movieTranslationService;
+            _configService = configService;
             _formatCalculator = formatCalculator;
             _logger = logger;
         }
@@ -126,7 +131,7 @@ namespace NzbDrone.Core.Organizer
 
             UpdateMediaInfoIfNeeded(pattern, movieFile, movie);
 
-            AddMovieTokens(tokenHandlers, movie);
+            AddMovieTokens(tokenHandlers, movie, false);
             AddReleaseDateTokens(tokenHandlers, movie.Year);
             AddIdTokens(tokenHandlers, movie);
             AddQualityTokens(tokenHandlers, movie, movieFile);
@@ -176,7 +181,7 @@ namespace NzbDrone.Core.Organizer
 
             var tokenHandlers = new Dictionary<string, Func<TokenMatch, string>>(FileNameBuilderTokenEqualityComparer.Instance);
 
-            AddMovieTokens(tokenHandlers, movie);
+            AddMovieTokens(tokenHandlers, movie, true);
             AddReleaseDateTokens(tokenHandlers, movie.Year);
             AddIdTokens(tokenHandlers, movie);
 
@@ -266,13 +271,13 @@ namespace NzbDrone.Core.Organizer
             return name.Trim(' ', '.');
         }
 
-        private void AddMovieTokens(Dictionary<string, Func<TokenMatch, string>> tokenHandlers, Movie movie)
+        private void AddMovieTokens(Dictionary<string, Func<TokenMatch, string>> tokenHandlers, Movie movie, bool useConfiguredLanguage)
         {
-            tokenHandlers["{Movie Title}"] = m => Truncate(GetLanguageTitle(movie, m.CustomFormat), m.CustomFormat);
-            tokenHandlers["{Movie CleanTitle}"] = m => Truncate(CleanTitle(GetLanguageTitle(movie, m.CustomFormat)), m.CustomFormat);
-            tokenHandlers["{Movie TitleThe}"] = m => Truncate(TitleThe(movie.Title), m.CustomFormat);
-            tokenHandlers["{Movie CleanTitleThe}"] = m => Truncate(CleanTitleThe(movie.Title), m.CustomFormat);
-            tokenHandlers["{Movie TitleFirstCharacter}"] = m => TitleFirstCharacter(TitleThe(GetLanguageTitle(movie, m.CustomFormat)));
+            tokenHandlers["{Movie Title}"] = m => Truncate(GetMovieTitle(movie, m.CustomFormat, useConfiguredLanguage), m.CustomFormat);
+            tokenHandlers["{Movie CleanTitle}"] = m => Truncate(CleanTitle(GetMovieTitle(movie, m.CustomFormat, useConfiguredLanguage)), m.CustomFormat);
+            tokenHandlers["{Movie TitleThe}"] = m => Truncate(TitleThe(GetMovieTitle(movie, m.CustomFormat, useConfiguredLanguage)), m.CustomFormat);
+            tokenHandlers["{Movie CleanTitleThe}"] = m => Truncate(CleanTitleThe(GetMovieTitle(movie, m.CustomFormat, useConfiguredLanguage)), m.CustomFormat);
+            tokenHandlers["{Movie TitleFirstCharacter}"] = m => TitleFirstCharacter(TitleThe(GetMovieTitle(movie, m.CustomFormat, useConfiguredLanguage)));
             tokenHandlers["{Movie OriginalTitle}"] = m => Truncate(movie.MovieMetadata.Value.OriginalTitle, m.CustomFormat) ?? string.Empty;
             tokenHandlers["{Movie CleanOriginalTitle}"] = m => Truncate(CleanTitle(movie.MovieMetadata.Value.OriginalTitle ?? string.Empty), m.CustomFormat);
 
@@ -280,6 +285,40 @@ namespace NzbDrone.Core.Organizer
             tokenHandlers["{Movie Collection}"] = m => Truncate(movie.MovieMetadata.Value.CollectionTitle, m.CustomFormat) ?? string.Empty;
             tokenHandlers["{Movie CollectionThe}"] = m => Truncate(TitleThe(movie.MovieMetadata.Value.CollectionTitle), m.CustomFormat) ?? string.Empty;
             tokenHandlers["{Movie CleanCollectionThe}"] = m => Truncate(CleanTitleThe(movie.MovieMetadata.Value.CollectionTitle), m.CustomFormat) ?? string.Empty;
+        }
+
+        private string GetMovieTitle(Movie movie, string isoCodes, bool useConfiguredLanguage)
+        {
+            if (isoCodes.IsNotNullOrWhiteSpace())
+            {
+                return GetLanguageTitle(movie, isoCodes);
+            }
+
+            if (!useConfiguredLanguage)
+            {
+                return movie.Title;
+            }
+
+            var language = (Language)_configService.MovieInfoLanguage;
+
+            if (language == Language.Original)
+            {
+                return movie.MovieMetadata.Value.OriginalTitle ?? movie.Title;
+            }
+
+            if (language == Language.Unknown)
+            {
+                return movie.Title;
+            }
+
+            var titles = movie.MovieMetadata.Value.Translations?.Where(t => t.Language == language).ToList() ?? new List<MovieTranslation>();
+
+            if (!titles.Any() && movie.MovieMetadataId > 0)
+            {
+                titles = _movieTranslationService.GetAllTranslationsForMovieMetadata(movie.MovieMetadataId).Where(t => t.Language == language).ToList();
+            }
+
+            return titles.FirstOrDefault()?.Title ?? movie.Title;
         }
 
         private string GetLanguageTitle(Movie movie, string isoCodes)
