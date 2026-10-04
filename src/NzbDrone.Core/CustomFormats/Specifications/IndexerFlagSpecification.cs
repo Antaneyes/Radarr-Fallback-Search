@@ -11,11 +11,11 @@ namespace NzbDrone.Core.CustomFormats
         public IndexerFlagSpecificationValidator()
         {
             RuleFor(c => c.Value).NotEmpty();
-            RuleFor(c => c.Value).Custom((qualityValue, context) =>
+            RuleFor(c => c.Value).Custom((flag, context) =>
             {
-                if (!Enum.IsDefined(typeof(IndexerFlags), qualityValue))
+                if (!Enum.IsDefined(typeof(IndexerFlags), flag))
                 {
-                    context.AddFailure($"Invalid indexer flag condition value: {qualityValue}");
+                    context.AddFailure($"Invalid indexer flag condition value: {flag}");
                 }
             });
         }
@@ -23,7 +23,7 @@ namespace NzbDrone.Core.CustomFormats
 
     public class IndexerFlagSpecification : CustomFormatSpecificationBase
     {
-        private static readonly IndexerFlagSpecificationValidator Validator = new ();
+        private static readonly IndexerFlagSpecificationValidator Validator = new();
 
         public override int Order => 4;
         public override string ImplementationName => "Indexer Flag";

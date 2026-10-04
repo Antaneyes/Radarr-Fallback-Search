@@ -136,7 +136,7 @@ namespace NzbDrone.Test.Common
 
         private void Start(string outputRadarrConsoleExe)
         {
-            StringDictionary envVars = new ();
+            StringDictionary envVars = new();
             if (PostgresOptions?.Host != null)
             {
                 envVars.Add("Radarr__Postgres__Host", PostgresOptions.Host);
@@ -180,6 +180,7 @@ namespace NzbDrone.Test.Common
                              new XElement(nameof(ConfigFileProvider.AnalyticsEnabled), false),
                              new XElement(nameof(ConfigFileProvider.AuthenticationMethod), enableAuth ? "Forms" : "None"),
                              new XElement(nameof(ConfigFileProvider.AuthenticationRequired), "DisabledForLocalAddresses"),
+                             new XElement(nameof(ConfigFileProvider.AllowedHosts), "localhost"),
                              new XElement(nameof(ConfigFileProvider.Port), Port)));
 
             var data = xDoc.ToString();

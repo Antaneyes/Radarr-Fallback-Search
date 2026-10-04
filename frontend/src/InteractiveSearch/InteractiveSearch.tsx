@@ -13,8 +13,6 @@ import Table from 'Components/Table/Table';
 import TableBody from 'Components/Table/TableBody';
 import { align, icons, kinds, sortDirections } from 'Helpers/Props';
 import { SortDirection } from 'Helpers/Props/sortDirections';
-import { fetchMovieBlocklist } from 'Store/Actions/movieBlocklistActions';
-import { fetchMovieHistory } from 'Store/Actions/movieHistoryActions';
 import {
   fetchReleases,
   grabRelease,
@@ -171,13 +169,6 @@ function InteractiveSearch({ searchPayload }: InteractiveSearchProps) {
 
       if (!isFetching && !isPopulated) {
         dispatch(fetchReleases(searchPayload));
-
-        const { movieId } = searchPayload;
-
-        if (movieId) {
-          dispatch(fetchMovieBlocklist({ movieId }));
-          dispatch(fetchMovieHistory({ movieId }));
-        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
