@@ -22,17 +22,16 @@ Al crear una película nueva, los tokens de carpeta basados en `{Movie Title}` u
 
 ## 🛠️ Instalación y Despliegue (Docker)
 
-Esta versión incluye herramientas para un despliegue rápido sobre la imagen oficial de Radarr mediante el montaje selectivo de binarios:
+El `Dockerfile` de este repo compila Radarr completo (backend y UI) y genera una imagen basada en la de LinuxServer, con el programa original sustituido entero por esta versión:
 
-1. **Requisitos:** Tener Docker y Docker Compose instalados.
-2. **Lanzamiento:** Ejecuta el archivo `launch_docker.bat` o usa el comando:
-   ```bash
-   docker-compose up -d
-   ```
-3. **Acceso:** La interfaz estará disponible por defecto en `http://localhost:7878`.
+```bash
+docker build -t local/radarr-fallback:<versión> .
+```
+
+Después basta con usar esa imagen en el compose (`image: local/radarr-fallback:<versión>`), sin montar binarios. El `docker-compose.yml` del repo es un ejemplo que la construye directamente (`docker compose up -d --build`, o `launch_docker.bat` en Windows). La interfaz estará en `http://localhost:7878`.
 
 > [!IMPORTANT]
-> La interfaz compilada debe montarse en `/app/radarr/bin/UI`. Radarr sirve los assets desde el content root `/app/radarr/bin`; si se monta en `/app/radarr/UI`, el backend puede estar parcheado pero la UI seguirá mostrando la versión original de la imagen.
+> `LSIO_TAG` en el `Dockerfile` debe ser la versión de upstream en la que se basa el fork (p. ej. `6.4.4.10685-ls318`). Actualízala cada vez que se fusione una versión nueva de Radarr.
 
 ## 📂 Estructura del Proyecto
 
@@ -41,7 +40,7 @@ Los cambios más importantes se encuentran en:
 - `Radarr.Api.V3/Indexers/ReleaseController.cs`: Soporte para el parámetro `includeFallback`.
 - `NzbDrone.Core/Organizer/FileNameBuilder.cs`: Uso del idioma configurado para los títulos de carpetas nuevas.
 - `frontend/src/InteractiveSearch/InteractiveSearch.tsx`: Nueva UI para búsquedas manuales en fallback.
-- `docker-compose.yml`: Montaje de DLLs parcheadas y UI compilada en la ruta servida por Radarr.
+- `Dockerfile`: Compilación del backend y la UI y generación de la imagen sobre la de LinuxServer.
 
 ---
 *Este es el repositorio principal del proyecto **Radarr Fallback Search**. Basado en el código original de Radarr.*
