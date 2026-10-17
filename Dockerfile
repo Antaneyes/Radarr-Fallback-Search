@@ -5,7 +5,7 @@
 # LSIO_TAG debe ser la versión de upstream en la que se basa este fork, para que el
 # sistema base sea el mismo con el que se publicó esa versión. El programa se sustituye
 # entero, así que la versión de Radarr que trae la imagen base no se usa.
-ARG LSIO_TAG=6.4.4.10685-ls318
+ARG LSIO_TAG=6.4.4.10685-ls321
 
 # --- Backend --------------------------------------------------------------------------
 # SDK Alpine para compilar para musl de forma nativa; global.json fija la banda 8.0.4xx.
